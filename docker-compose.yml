@@ -1,0 +1,69 @@
+version: "3"
+services:
+
+  postgres:
+    image: "postgres:latest"
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=5|7t4R+YyspY/!8M
+      - POSTGRES_USER=tucoenergie
+      - POSTGRES_DB=becq_e
+    expose:
+      - "5432"
+    volumes:
+      - /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
+
+  
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    image: localhost:5000/tucoenergie-nginx:latest
+    expose:
+      - "80"
+    networks:
+      - nginx-proxy-manager_default
+      - default
+    
+  
+  api:
+    image: localhost:5000/tucoenergie-server:latest
+    restart: always
+    volumes:
+      - server:/app/node_modules
+      - /home/bob/podman_docker/cours/Becq-e-master/server:/app
+    environment:
+      - PGUSER=tucoenergie
+      - PGHOST=postgres
+      - PGDATABASE=becq_e
+      - PGPASSWORD=5|7t4R+YyspY/!8M
+      - PGPORT=5432
+    links:
+      - postgres
+    depends_on:
+      - postgres
+      
+  client:
+    image: localhost:5000/tucoenergie-client:latest
+    restart: always
+    volumes:
+      - client:/app/node_modules
+      - /home/bob/podman_docker/cours/Becq-e-master/client:/app
+    links:
+      - api
+    depends_on:
+      - postgres
+      - api
+    networks:
+      - nginx-proxy-manager_default
+      - default
+  
+volumes:
+  client:
+  server:
+
+networks:
+  nginx-proxy-manager_default:
+    name: nginx-proxy-manager_default
+    external: true
