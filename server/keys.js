@@ -1,7 +1,7 @@
 module.exports = {
     pgUser: "tucoenergie",
-    pgHost: "sitehugo.avirondevinci.fr",
+    pgHost: "hugo-sanchez.fr",
     pgDatabase: "becq_e",
     pgPassword: "5|7t4R+YyspY/!8M",
-    pgPort: "7443"
+    pgPort: "5432"
 };
