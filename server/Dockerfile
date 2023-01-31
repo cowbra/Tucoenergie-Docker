@@ -5,6 +5,6 @@ RUN npm i
 RUN npm install morgan
 COPY . .
 RUN chown -R node:node .
-EXPOSE 5001
+EXPOSE 5000
 USER node
 CMD ["npm","run","start"]

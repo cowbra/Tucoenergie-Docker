@@ -2,7 +2,7 @@ FROM node:18.13.0-alpine as builder
 WORKDIR /app
 COPY ./package.json ./
 RUN npm i
-RUN npm install morgan
+RUN npm install axios
 COPY . .
 RUN chown -R node:node .
 RUN npm run build
