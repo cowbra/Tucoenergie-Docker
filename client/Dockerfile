@@ -5,6 +5,8 @@ RUN npm i
 RUN npm install axios
 COPY . .
 RUN chown -R node:node .
+USER node
+RUN chmod a+x ./node_modules/.bin/react-scripts
 RUN npm run build
 
 FROM nginx

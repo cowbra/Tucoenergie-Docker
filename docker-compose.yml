@@ -1,6 +1,5 @@
 version: "3"
 services:
-
   postgres:
     image: "postgres:latest"
     restart: always
@@ -9,26 +8,24 @@ services:
       - POSTGRES_USER=tucoenergie
       - POSTGRES_DB=becq_e
     ports:
-      - "7443:5432"
+      - "5432:5432"
     volumes:
       - /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
-  
   nginx:
     depends_on:
       - api
       - client
     restart: always
-    image: localhost:5000/tucoenergie-nginx:latest
+    image: cowbra/esilv:tuco-nginx
     expose:
       - "80"
     networks:
       - nginx-proxy-manager_default
       - default
     
-  
   api:
-    image: localhost:5000/tucoenergie-server:latest
+    image: cowbra/esilv:tuco-server
     restart: always
     volumes:
       - server:/app/node_modules
@@ -38,14 +35,14 @@ services:
       - PGHOST=postgres
       - PGDATABASE=becq_e
       - PGPASSWORD=5|7t4R+YyspY/!8M
-      - PGPORT=7443
+      - PGPORT=5432
     links:
       - postgres
     depends_on:
       - postgres
       
   client:
-    image: localhost:5000/tucoenergie-client:latest
+    image: cowbra/esilv:tuco-client
     restart: always
     volumes:
       - client:/app/node_modules
@@ -56,9 +53,7 @@ services:
       - postgres
       - api
     networks:
-      - nginx-proxy-manager_default
       - default
-  
 volumes:
   client:
   server:
