@@ -11,18 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
-
-  nginx:
-    depends_on:
-      - api
-      - client
-    restart: always
-    image: cowbra/esilv:tuco-nginx
-    expose:
-      - "80"
-    networks:
-      - nginx-proxy-manager_default
-      - default
+  
     
   api:
     image: cowbra/esilv:tuco-server
@@ -40,10 +29,14 @@ services:
       - postgres
     depends_on:
       - postgres
+
       
   client:
     image: cowbra/esilv:tuco-client
     restart: always
+    stdin_open: true
+    environment:
+      - CHOKIDAR_USEPOLLING=true
     volumes:
       - client:/app/node_modules
       - /home/bob/podman_docker/cours/Becq-e-master/client:/app
@@ -52,8 +45,20 @@ services:
     depends_on:
       - postgres
       - api
+
+      
+  nginx:
+    depends_on:
+      - api
+      - client
+    restart: always
+    image: cowbra/esilv:tuco-nginx
+    expose:
+      - "80"
     networks:
+      - nginx-proxy-manager_default
       - default
+
 volumes:
   client:
   server:

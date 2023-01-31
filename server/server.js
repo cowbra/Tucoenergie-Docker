@@ -67,5 +67,10 @@ app.put('/bats/:id_bat', async(req, res)=>{
     catch(err){
         console.error(err.message)
     }
+//Express route definitions
+app.get("/", (req, res) => {
+    res.send("Hi");
+  });
+  
 
 })

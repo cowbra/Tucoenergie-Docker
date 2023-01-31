@@ -25,17 +25,17 @@ export default class Core extends React.Component<{}, Batiment> {
     }
 
     async getUntreatedBatiment(){
-        const batiment = (await axios.get<Batiment>('http://localhost:5000/bats/to_be_treated')).data
+        const batiment = (await axios.get<Batiment>('https://tucoenergie.hugo-sanchez.fr/api/bats/to_be_treated')).data
         this.setState(batiment)
     }
 
     validateBatiment = async() =>{
-        await axios.put<void>(`http://localhost:5000/bats/${this.state.id}`,{materiau_correct:true})
+        await axios.put<void>(`https://tucoenergie.hugo-sanchez.fr/api/bats/${this.state.id}`,{materiau_correct:true})
         this.getUntreatedBatiment()
     }
 
     notValidateBatiment = async() =>{
-        await axios.put<void>(`http://localhost:5000/bats/${this.state.id}`,{materiau_correct:false})
+        await axios.put<void>(`https://tucoenergie.hugo-sanchez.fr/api/bats/${this.state.id}`,{materiau_correct:false})
         this.getUntreatedBatiment()
     }
 
