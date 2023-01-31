@@ -8,8 +8,8 @@ services:
       - POSTGRES_PASSWORD=5|7t4R+YyspY/!8M
       - POSTGRES_USER=tucoenergie
       - POSTGRES_DB=becq_e
-    expose:
-      - "5432"
+    ports:
+      - "7443:5432"
     volumes:
       - /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
@@ -38,7 +38,7 @@ services:
       - PGHOST=postgres
       - PGDATABASE=becq_e
       - PGPASSWORD=5|7t4R+YyspY/!8M
-      - PGPORT=5432
+      - PGPORT=7443
     links:
       - postgres
     depends_on:
