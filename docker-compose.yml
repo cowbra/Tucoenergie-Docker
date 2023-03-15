@@ -1,79 +1,107 @@
+# Top-level section for the version parameter used by the docker compose engine
 version: "3.8"
+# Top-level section to define services
 services:
+  # PostgreSQL service for database
   postgres:
     image: "postgres:latest"
-    restart: always
+    restart: always # restart policies
+    # environment variables specified in the .env
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
+    # Publish Postgres container port to host port
     ports:
       - "5432:5432"
     volumes:
       #- /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      # Mount Postgres data to a named volume
       - postgres-bind:/var/lib/postgresql/data
-  
+    # test if Postgres is ready to accept connections
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+
+  # "PostGIS is a spatial database extender for PostgreSQL object-relational database.
+  # It adds support for geographic objects allowing location queries to be run in SQL"
   postgis:
     image: "postgis/postgis"
-    restart: always
+    restart: always # restart policies
+    # environment variables specified in the .env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    # Wait for the postgres service to be running
     depends_on:
-      - postgres
+      - postgres:
+          condition: service_healthy
   
-    
+  # Back of our application (server)
   api:
     image: cowbra/esilv:tuco-server
-    restart: always
+    restart: always # restart policies
     volumes:
       - server:/app/node_modules
       - ${PWD}/server:/app
+      # environment variables specified in the .env
     environment:
       - PGUSER=${POSTGRES_USER}
       - PGHOST=postgres
       - PGDATABASE=${POSTGRES_DB}
       - PGPASSWORD=${POSTGRES_PASSWORD}
       - PGPORT=5432
-    links:
-      - postgres
+    # Wait for the postgres service to be running and operational
     depends_on:
-      - postgres
+      - postgres:
+          condition: service_healthy
 
 
-      
+  # Front of our application  
   client:
     image: cowbra/esilv:tuco-client
-    restart: always
-    stdin_open: true
+    restart: always # restart policies
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
     environment:
+    # chokidar library is a file-watcher used by many frontend tools
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - client:/app/node_modules
       - ${PWD}/client:/app
-    links:
-      - api
+    # Wait for the services to be running and operational
     depends_on:
       - postgres
       - api
 
-
+  # Nginx service --> reverse proxy to only expose port 80
   nginx:
+    image: cowbra/esilv:tuco-nginx
+    restart: always
+    # Wait for the services to be running and operational
     depends_on:
       - api
       - client
-    restart: always
-    image: cowbra/esilv:tuco-nginx
+    # Expose container port 80 to the Docker host
     expose:
       - "80"
+    # indicates the networks to which the container is connected
     networks:
-      - nginx-proxy-manager_default
-      - default
+      - nginx-proxy-manager_default # External bridge network 
+      - default # Bridge network created automatically by Docker
 
+
+# Top-level section for volumes definition
 volumes:
+  # Named volumes (persistents)
   client:
   server:
+
+  # Bind mounted volume
   postgres-bind:
     type: bind
     source: ./postgresql
@@ -81,7 +109,7 @@ volumes:
     create_host_path: true
 
 
-
+# Top-level section for networks definition
 networks:
   nginx-proxy-manager_default:
     name: nginx-proxy-manager_default
