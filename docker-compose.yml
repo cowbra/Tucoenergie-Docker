@@ -1,16 +1,27 @@
-version: "3"
+version: "3.8"
 services:
   postgres:
     image: "postgres:latest"
     restart: always
     environment:
-      - POSTGRES_PASSWORD=
-      - POSTGRES_USER=
-      - POSTGRES_DB=
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
-      - /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      #- /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
+      - postgres-bind:/var/lib/postgresql/data
+  
+  postgis:
+    image: "postgis/postgis"
+    restart: always
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - postgres
   
     
   api:
@@ -18,17 +29,18 @@ services:
     restart: always
     volumes:
       - server:/app/node_modules
-      - /home/bob/podman_docker/cours/Becq-e-master/server:/app
+      - ${PWD}/server:/app
     environment:
-      - PGUSER=
+      - PGUSER=${POSTGRES_USER}
       - PGHOST=postgres
-      - PGDATABASE=becq_e
-      - PGPASSWORD=
+      - PGDATABASE=${POSTGRES_DB}
+      - PGPASSWORD=${POSTGRES_PASSWORD}
       - PGPORT=5432
     links:
       - postgres
     depends_on:
       - postgres
+
 
       
   client:
@@ -39,14 +51,14 @@ services:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - client:/app/node_modules
-      - /home/bob/podman_docker/cours/Becq-e-master/client:/app
+      - ${PWD}/client:/app
     links:
       - api
     depends_on:
       - postgres
       - api
 
-      
+
   nginx:
     depends_on:
       - api
@@ -62,6 +74,13 @@ services:
 volumes:
   client:
   server:
+  postgres-bind:
+    type: bind
+    source: ./postgresql
+    target: /var/lib/postgresql/data
+    create_host_path: true
+
+
 
 networks:
   nginx-proxy-manager_default:
