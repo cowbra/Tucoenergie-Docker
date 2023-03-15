@@ -31,11 +31,6 @@ RUN chmod a+x ./node_modules/.bin/react-scripts
 RUN npm run build
 
 
-
-
-
-
-
 # specify the base image used for the second stage of the build process
 FROM nginx
 
