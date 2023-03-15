@@ -18,7 +18,7 @@ services:
       #- /home/bob/podman_docker/cours/Becq-e-master/batiments.sql:/docker-entrypoint-initdb.d/create_tables.sql
       # Bind mounted volume
       - type: bind
-        source: ./postgresql
+        source: ../postgresql
         target: /var/lib/postgresql/data
     # test if Postgres is ready to accept connections
     healthcheck:
@@ -49,7 +49,7 @@ services:
     restart: always # restart policies
     volumes:
       - server:/app/node_modules
-      - ./server:/app
+      - ../server:/app
       # environment variables specified in the .env
     environment:
       - PGUSER=${POSTGRES_USER}
@@ -74,7 +74,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - client:/app/node_modules
-      - ./client:/app
+      - ../client:/app
     # Wait for the services to be running and operational
     depends_on:
       - postgres
