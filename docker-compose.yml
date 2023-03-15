@@ -22,7 +22,7 @@ services:
         target: /var/lib/postgresql/data
     # test if Postgres is ready to accept connections
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 3
