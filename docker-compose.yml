@@ -45,7 +45,7 @@ services:
   
   # Back of our application (server)
   api:
-    image: registry.hugo-sanchez.fr/tuco-server:latest
+    image: cowbra/tucoenergie-server:latest
     restart: always # restart policies
     volumes:
       - server:/app/node_modules
@@ -65,7 +65,7 @@ services:
 
   # Front of our application  
   client:
-    image: registry.hugo-sanchez.fr/tuco-client:latest
+    image: cowbra/tucoenergie-client:latest
     restart: always # restart policies
     stdin_open: true # docker run -i
     tty: true        # docker run -t
@@ -82,7 +82,7 @@ services:
 
   # Nginx service --> reverse proxy to only expose port 80
   nginx:
-    image: registry.hugo-sanchez.fr/tuco-nginx:latest
+    image: cowbra/tucoenergie-nginx:latest
     restart: always
     # Wait for the services to be running and operational
     depends_on:
